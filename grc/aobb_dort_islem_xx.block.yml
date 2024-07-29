@@ -1,0 +1,85 @@
+id: aobb_dort_islem_xx
+label: Dort Islem
+flags: [python, cpp]
+
+parameters:
+  - id: type
+    label: IO Type
+    dtype: enum
+    options: [complex, float, int, short]
+    option_attributes:
+      fcn: [cc, ff, ii, ss]
+    hide: part
+  - id: num_inputs
+    label: Num Inputs
+    dtype: int
+    default: "2"
+    hide: part
+  - id: add
+    label: add
+    dtype: bool
+    default: "True"
+    options: ["False", "True"]
+    option_labels: ["Off", "On"]
+  - id: sub
+    label: sub
+    dtype: bool
+    default: "False"
+    options: ["False", "True"]
+    option_labels: ["Off", "On"]
+  - id: mul
+    label: mul
+    dtype: bool
+    default: "False"
+    options: ["False", "True"]
+    option_labels: ["Off", "On"]
+  - id: div
+    label: div
+    dtype: bool
+    default: "False"
+    options: ["False", "True"]
+    option_labels: ["Off", "On"]
+
+inputs:
+  - domain: stream
+    dtype: ${ type }
+    vlen: "1"
+    multiplicity: ${ num_inputs }
+
+outputs:
+  - label: add
+    domain: stream
+    dtype: ${ type }
+    optional: true
+    hide: ${ add == 0 }
+  - label: sub
+    domain: stream
+    dtype: ${ type }
+    optional: true
+    hide: ${ sub == 0 }
+  - label: mul
+    domain: stream
+    dtype: ${ type }
+    optional: true
+    hide: ${ mul == 0 }
+  - label: div
+    domain: stream
+    dtype: ${ type }
+    optional: true
+    hide: ${ div == 0 }
+
+asserts:
+  - ${ num_inputs > 1 }
+
+templates:
+  imports: from gnuradio import aobb
+  make: aobb.dort_islem_${type.fcn}(${add}, ${sub}, ${mul}, ${div})
+  callbacks:
+    - set_dort_islem_type(${add}, ${sub}, ${mul}, ${div})
+
+cpp_templates:
+  includes: ["#include <gnuradio/aobb/dort_islem.h>"]
+  declarations: "blocks::dort_islem${type.fcn}::sptr ${id};"
+  make: "this->${id} = blocks::add_${type.fcn}::make(${add}, ${sub}, ${mul}, ${div});"
+
+file_format: 1
